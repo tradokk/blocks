@@ -1,0 +1,11 @@
+macro (add_sources target)
+	foreach(arg IN ITEMS ${ARGN})
+		target_sources(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${arg})
+	endforeach()
+endmacro()
+
+macro (add_public_sources target)
+	foreach(arg IN ITEMS ${ARGN})
+		target_sources(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/${arg})
+	endforeach()
+endmacro()
