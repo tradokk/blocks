@@ -14,7 +14,7 @@
  */
 
 #include "draw.h"
-#include "game.h"
+#include <game.h>
 
 #define I_TL 0 * 16
 #define I_T 1 * 16
@@ -39,15 +39,15 @@ extern struct GlyphMap numbers_glyphs;
 
 static void drawCurrentPiece(struct Game *game);
 
-static void drawPiece(int piece, int rotation, struct Pos *pos, struct Game *game);
+static void drawPiece(int piece, int rotation, struct Pos *pos,
+                      struct Game *game);
 
 static void drawInterface(struct Game *game);
 
 static void drawGameGrid(struct Game *game);
 
-static void drawSingleTile(struct Pos *src, struct Pos *dest);
-
-static void drawInterfaceBox(struct Pos *pos, int width, int height, uint8_t *box);
+static void drawInterfaceBox(struct Pos *pos, int width, int height,
+                             uint8_t *box);
 
 static void drawText(struct Pos *pos, int line, int length);
 
@@ -70,7 +70,8 @@ static uint8_t text_box_small[] = {I_TL, I_T, I_T, I_T, I_T, I_T, I_T, I_TR,
                                    I_L,  I_C, I_C, I_C, I_C, I_C, I_C, I_R,
                                    I_BL, I_B, I_B, I_B, I_B, I_B, I_B, I_BR};
 
-static void drawPiece(int piece, int rotation, struct Pos *pos, struct Game *game)
+static void drawPiece(int piece, int rotation, struct Pos *pos,
+                      struct Game *game)
 {
 	const struct Pos *blocks = game->pieces[piece].rotations[rotation].blocks;
 	for (int i = 0; i < 4; i++) {
@@ -133,7 +134,8 @@ static void drawInterface(struct Game *game)
 	pos.y = 8;
 }
 
-static void drawInterfaceBox(struct Pos *pos, int width, int height, uint8_t *box)
+static void drawInterfaceBox(struct Pos *pos, int width, int height,
+                             uint8_t *box)
 {
 	int posx = pos->x * CELL_SIZE;
 	int posy = pos->y * CELL_SIZE;
@@ -169,15 +171,14 @@ static void drawGameGrid(struct Game *game)
 
 static void drawText(struct Pos *pos, int line, int length)
 {
-	int x=pos->x*CELL_SIZE;
-	int y=pos->y*CELL_SIZE;
-	int offset=5*GLYPH_HEIGHT*line;
-	for(int i=0;i<length;i++) {
-		renderGlyph(&text_tiles.data[offset],x,y);
-		offset+=8;
-		x+=CELL_SIZE;
+	int x = pos->x * CELL_SIZE;
+	int y = pos->y * CELL_SIZE;
+	int offset = 5 * GLYPH_HEIGHT * line;
+	for (int i = 0; i < length; i++) {
+		renderGlyph(&text_tiles.data[offset], x, y);
+		offset += 8;
+		x += CELL_SIZE;
 	}
-
 }
 
 static void drawNumber(struct Pos *pos, int number)

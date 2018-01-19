@@ -15,7 +15,7 @@
 #ifndef GENERIC_RENDERER_H
 #define GENERIC_RENDERER_H
 
-#include "renderer.h"
+#include <platform/renderer.h>
 
 extern uint32_t render_buffer[SCREEN_HEIGHT * SCREEN_WIDTH];
 

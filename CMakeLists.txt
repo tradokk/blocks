@@ -23,14 +23,16 @@ if(CMAKE_COMPILER_IS_GNUC)
 endif()
 	
 set(PLATFORM "SDL2" CACHE STRING "The target platform, 
-	options are: SDL2")
+	options are: SDL2, PS2")
 
 if(PLATFORM STREQUAL "SDL2")
-	#find_package(SDL2_image REQUIRED)
-	#${SDL2_IMAGE_INCLUDE_DIR})
 	find_package(SDL2 REQUIRED)
 	include_directories(${SDL2_INCLUDE_DIR})
 	set(LIBRARIES ${SDL2_LIBRARY})
+
+elseif(PLATFORM STREQUAL "PS2")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+	include_directories(${CMAKE_SOURCE_DIR}/src/platform/PS2)
 endif()
 
 find_package(PythonInterp)

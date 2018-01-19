@@ -1,4 +1,6 @@
 if(PLATFORM STREQUAL "SDL2")
 	add_subdirectory(SDL2)
+elseif(PLATFORM STREQUAL "PS2")
+	add_subdirectory(PS2)
 endif()
 add_public_sources(platform renderer.h platform.h)

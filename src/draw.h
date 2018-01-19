@@ -15,8 +15,6 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include <SDL2/SDL.h>
-
 #define INTERFACE_WIDTH 8
 #define INTERFACE_HEIGHT (GRID_HEIGHT + 5)
 

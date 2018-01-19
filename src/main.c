@@ -14,7 +14,7 @@
  */
 
 #include <game.h>
-#include <platform.h>
+#include <platform/platform.h>
 
 struct Game game;
 int main()

@@ -1,12 +1,13 @@
-#include <SDL2/SDL.h>
 #include <draw.h>
+#include <platform/generic_renderer.h>
 #include <platform/platform.h>
+
+#include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <platform/generic_renderer.h>
 
 #define WINDOW_WIDTH (SCREEN_WIDTH * 4)
 #define WINDOW_HEIGHT (SCREEN_HEIGHT * 4)
