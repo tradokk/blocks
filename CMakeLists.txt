@@ -16,21 +16,24 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 include(AddSources)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 
 if(CMAKE_COMPILER_IS_GNUC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 endif()
+	
+set(PLATFORM "SDL2" CACHE STRING "The target platform, 
+	options are: SDL2")
 
-find_package(SDL2 REQUIRED)
+if(PLATFORM STREQUAL "SDL2")
+	#find_package(SDL2_image REQUIRED)
+	#${SDL2_IMAGE_INCLUDE_DIR})
+	find_package(SDL2 REQUIRED)
+	include_directories(${SDL2_INCLUDE_DIR})
+	set(LIBRARIES ${SDL2_LIBRARY})
+endif()
 
 find_package(PythonInterp)
-
-#find_package(SDL2_image REQUIRED)
-
-include_directories(${SDL2_INCLUDE_DIR})
-#${SDL2_IMAGE_INCLUDE_DIR})
-
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 

@@ -54,6 +54,7 @@ struct Game {
 	bool key_left;
 	bool key_right;
 	bool key_down;
+	bool rotate;
 	int score;
 	int lines;
 	int level;

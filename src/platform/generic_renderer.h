@@ -15,22 +15,8 @@
 #ifndef GENERIC_RENDERER_H
 #define GENERIC_RENDERER_H
 
-#include <stdint.h>
-
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
-
-#define COLOR0 0xFF204631
-#define COLOR1 0xFFa1bd56
-#define COLOR2 0xFFd6e894
-
-#define TEXT_FG_COLOR COLOR0
-#define TEXT_BG_COLOR COLOR2
+#include "renderer.h"
 
 extern uint32_t render_buffer[SCREEN_HEIGHT * SCREEN_WIDTH];
-
-void clear(uint32_t color);
-void RenderGlyph(uint8_t *data, int x, int y);
-void RenderTile(uint8_t *data, int x, int y);
 
 #endif

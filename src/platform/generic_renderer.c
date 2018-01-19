@@ -28,7 +28,7 @@ void clear(uint32_t color)
 	}
 }
 
-void RenderGlyph(uint8_t *data, int posx, int posy)
+void renderGlyph(uint8_t *data, int posx, int posy)
 {
 	int z = 0;
 	for (int y = posy; y < posy + 8; y++) {
@@ -48,7 +48,7 @@ void RenderGlyph(uint8_t *data, int posx, int posy)
 	}
 }
 
-void RenderTile(uint8_t *data, int posx, int posy)
+void renderTile(uint8_t *data, int posx, int posy)
 {
 	int z = 0;
 	for (int y = posy; y < posy + 8; y++) {

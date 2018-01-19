@@ -12,20 +12,23 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DRAW_H
-#define DRAW_H
+#ifndef RENDERER_H
+#define RENDERER_H
 
-#include <SDL2/SDL.h>
+#include <stdint.h>
 
-#define INTERFACE_WIDTH 8
-#define INTERFACE_HEIGHT (GRID_HEIGHT + 5)
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 240
 
-#include <game.h>
-#include <platform/renderer.h>
-#include <resource.h>
+#define COLOR0 0xFF204631
+#define COLOR1 0xFFa1bd56
+#define COLOR2 0xFFd6e894
 
-struct Game;
+#define TEXT_FG_COLOR COLOR0
+#define TEXT_BG_COLOR COLOR2
 
-void draw(struct Game *game);
+void clear(uint32_t color);
+void renderGlyph(uint8_t *data, int x, int y);
+void renderTile(uint8_t *data, int x, int y);
 
 #endif

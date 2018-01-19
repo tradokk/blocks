@@ -45,13 +45,13 @@ static void drawInterface(struct Game *game);
 
 static void drawGameGrid(struct Game *game);
 
-static void DrawSingleTile(struct Pos *src, struct Pos *dest);
+static void drawSingleTile(struct Pos *src, struct Pos *dest);
 
-static void DrawInterfaceBox(struct Pos *pos, int width, int height, uint8_t *box);
+static void drawInterfaceBox(struct Pos *pos, int width, int height, uint8_t *box);
 
-static void DrawText(struct Pos *pos, int line, int length);
+static void drawText(struct Pos *pos, int line, int length);
 
-static void DrawNumber(struct Pos *pos, int number);
+static void drawNumber(struct Pos *pos, int number);
 
 static uint8_t piece_box[] = {
     I_TL, I_T,  I_T,   I_T,  I_T,  I_T,  I_TR, I_L,  I_C,   I_C, I_C, I_C,
@@ -76,7 +76,7 @@ static void drawPiece(int piece, int rotation, struct Pos *pos, struct Game *gam
 	for (int i = 0; i < 4; i++) {
 		int x = (blocks[i].x + pos->x) * CELL_SIZE;
 		int y = (blocks[i].y + pos->y) * CELL_SIZE;
-		RenderTile(&blocks_tiles.data[piece * 16], x, y);
+		renderTile(&blocks_tiles.data[piece * 16], x, y);
 	}
 }
 
@@ -90,40 +90,40 @@ static void drawCurrentPiece(struct Game *game)
 static void drawInterface(struct Game *game)
 {
 	struct Pos pos = {GRID_WIDTH, 0};
-	DrawInterfaceBox(&pos, 8, 5, text_box);
+	drawInterfaceBox(&pos, 8, 5, text_box);
 	pos.x = GRID_WIDTH + 1;
 	pos.y++;
-	DrawText(&pos, 1, 5);
+	drawText(&pos, 1, 5);
 	pos.x = GRID_WIDTH + 6;
 	pos.y += 2;
-	DrawNumber(&pos, game->score);
+	drawNumber(&pos, game->score);
 
 	pos.x = GRID_WIDTH;
 	pos.y += 2;
-	DrawInterfaceBox(&pos, 8, 4, text_box_small);
+	drawInterfaceBox(&pos, 8, 4, text_box_small);
 	pos.x = GRID_WIDTH + 1;
 	pos.y++;
-	DrawText(&pos, 2, 5);
-	pos.x = GRID_WIDTH + 6;
-	pos.y += 1;
-	DrawNumber(&pos, game->level);
-
-	pos.x = GRID_WIDTH;
-	pos.y += 2;
-	DrawInterfaceBox(&pos, 8, 4, text_box_small);
-	pos.x = GRID_WIDTH + 1;
-	pos.y++;
-	DrawText(&pos, 3, 5);
+	drawText(&pos, 2, 5);
 	pos.x = GRID_WIDTH + 6;
 	pos.y += 1;
-	DrawNumber(&pos, game->lines);
+	drawNumber(&pos, game->level);
 
 	pos.x = GRID_WIDTH;
 	pos.y += 2;
-	DrawInterfaceBox(&pos, 7, 8, piece_box);
+	drawInterfaceBox(&pos, 8, 4, text_box_small);
 	pos.x = GRID_WIDTH + 1;
 	pos.y++;
-	DrawText(&pos, 0, 5);
+	drawText(&pos, 3, 5);
+	pos.x = GRID_WIDTH + 6;
+	pos.y += 1;
+	drawNumber(&pos, game->lines);
+
+	pos.x = GRID_WIDTH;
+	pos.y += 2;
+	drawInterfaceBox(&pos, 7, 8, piece_box);
+	pos.x = GRID_WIDTH + 1;
+	pos.y++;
+	drawText(&pos, 0, 5);
 
 	pos.x = GRID_WIDTH + 2;
 	pos.y += 4;
@@ -133,7 +133,7 @@ static void drawInterface(struct Game *game)
 	pos.y = 8;
 }
 
-static void DrawInterfaceBox(struct Pos *pos, int width, int height, uint8_t *box)
+static void drawInterfaceBox(struct Pos *pos, int width, int height, uint8_t *box)
 {
 	int posx = pos->x * CELL_SIZE;
 	int posy = pos->y * CELL_SIZE;
@@ -141,7 +141,7 @@ static void DrawInterfaceBox(struct Pos *pos, int width, int height, uint8_t *bo
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			// RenderTile(&interface_tilemap.data[box[i]], posx, posy);
-			RenderTile(&interface_tiles.data[box[i]], posx, posy);
+			renderTile(&interface_tiles.data[box[i]], posx, posy);
 			posx += CELL_SIZE;
 			i++;
 		}
@@ -157,7 +157,7 @@ static void drawGameGrid(struct Game *game)
 	for (int y = 0; y < GRID_HEIGHT; y++) {
 		for (int x = 0; x < GRID_WIDTH; x++) {
 			if (game->field[y][x] > 0) {
-				RenderTile(&blocks_tiles.data[(game->field[y][x] - 1) * 16],
+				renderTile(&blocks_tiles.data[(game->field[y][x] - 1) * 16],
 				           posx, posy);
 			}
 			posx += CELL_SIZE;
@@ -167,20 +167,20 @@ static void drawGameGrid(struct Game *game)
 	}
 }
 
-static void DrawText(struct Pos *pos, int line, int length)
+static void drawText(struct Pos *pos, int line, int length)
 {
 	int x=pos->x*CELL_SIZE;
 	int y=pos->y*CELL_SIZE;
 	int offset=5*GLYPH_HEIGHT*line;
 	for(int i=0;i<length;i++) {
-		RenderGlyph(&text_tiles.data[offset],x,y);
+		renderGlyph(&text_tiles.data[offset],x,y);
 		offset+=8;
 		x+=CELL_SIZE;
 	}
 
 }
 
-static void DrawNumber(struct Pos *pos, int number)
+static void drawNumber(struct Pos *pos, int number)
 {
 	int x = pos->x * CELL_SIZE;
 	int y = pos->y * CELL_SIZE;
@@ -188,7 +188,7 @@ static void DrawNumber(struct Pos *pos, int number)
 	int remaining = number;
 	do {
 		int c = remaining % 10;
-		RenderGlyph(&numbers_glyphs.data[c * GLYPH_HEIGHT], x, y);
+		renderGlyph(&numbers_glyphs.data[c * GLYPH_HEIGHT], x, y);
 		remaining = remaining / 10;
 		x -= CELL_SIZE;
 	} while (remaining > 0);

@@ -22,7 +22,8 @@ static void resetPos(struct Game *game);
 
 static void generatePiece(struct PieceState *state);
 
-static bool checkCellCollision(int8_t grid[GRID_HEIGHT][GRID_WIDTH], struct Pos pos);
+static bool checkCellCollision(int8_t grid[GRID_HEIGHT][GRID_WIDTH],
+                               struct Pos pos);
 
 static bool checkCollision(struct Game *game, struct Pos *pos, int rotation);
 
@@ -37,7 +38,7 @@ static void updateStatistics(struct Game *game, int lines);
 static void clearLines(struct Game *game);
 
 static const struct Piece pieces[7] = {
-	// O
+    // O
     {1,
      {{{{0, 0}, {0, -1}, {1, -1}, {1, 0}}},
       {{{0, 0}, {0, -1}, {1, -1}, {1, 0}}},
@@ -80,8 +81,6 @@ static const struct Piece pieces[7] = {
       {{{-1, 0}, {0, 0}, {0, 1}, {1, 1}}},
       {{{-1, 1}, {-1, 0}, {0, 0}, {0, -1}}}}}};
 
-
-
 static void initField(struct Game *game)
 {
 	for (int y = 0; y < GRID_HEIGHT; y++) {
@@ -120,6 +119,7 @@ void init(struct Game *game)
 	game->key_left = false;
 	game->key_right = false;
 	game->key_down = false;
+	game->rotate = false;
 	game->level = 0;
 	game->lines = 0;
 	game->score = 0;
@@ -127,13 +127,14 @@ void init(struct Game *game)
 	game->points[1] = 100;
 	game->points[2] = 300;
 	game->points[3] = 1200;
-	game->pieces=pieces;
+	game->pieces = pieces;
 	generatePiece(&game->current_piece);
 	generatePiece(&game->next_piece);
 	resetPos(game);
 }
 
-static bool checkCellCollision(int8_t grid[GRID_HEIGHT][GRID_WIDTH], struct Pos pos)
+static bool checkCellCollision(int8_t grid[GRID_HEIGHT][GRID_WIDTH],
+                               struct Pos pos)
 {
 	if ((pos.x < 0) || (pos.x >= GRID_WIDTH) || (pos.y >= GRID_HEIGHT)) {
 		return true;
@@ -151,7 +152,7 @@ static bool checkCollision(struct Game *game, struct Pos *pos, int rotation)
 	    pieces[game->current_piece.piece].rotations[rotation].blocks;
 	for (int i = 0; i < 4; i++) {
 		struct Pos block = {(int8_t)(blocks[i].x + pos->x),
-			                (int8_t)(blocks[i].y + pos->y)};
+		                    (int8_t)(blocks[i].y + pos->y)};
 		if (checkCellCollision(game->field, block)) {
 			return true;
 		}
@@ -163,22 +164,22 @@ static bool move(struct Game *game, int dir)
 {
 	struct Pos pos = game->piece_pos;
 	switch (dir) {
-	    case DIRECTION_DOWN:
-		    pos.y++;
-		    break;
-	    case DIRECTION_LEFT:
-		    pos.x--;
-		    break;
-	    case DIRECTION_RIGHT:
-		    pos.x++;
-		    break;
+		case DIRECTION_DOWN:
+			pos.y++;
+			break;
+		case DIRECTION_LEFT:
+			pos.x--;
+			break;
+		case DIRECTION_RIGHT:
+			pos.x++;
+			break;
 	}
 	const struct Pos *blocks = pieces[game->current_piece.piece]
-	                         .rotations[game->current_piece.rotation]
-	                         .blocks;
+	                               .rotations[game->current_piece.rotation]
+	                               .blocks;
 	for (int i = 0; i < 4; i++) {
 		struct Pos block = {(int8_t)(blocks[i].x + pos.x),
-			                (int8_t)(blocks[i].y + pos.y)};
+		                    (int8_t)(blocks[i].y + pos.y)};
 		if (checkCellCollision(game->field, block) == true) {
 			return false;
 		}
@@ -190,16 +191,15 @@ static bool move(struct Game *game, int dir)
 static void lockPiece(struct Game *game)
 {
 	const struct Pos *blocks = pieces[game->current_piece.piece]
-	                         .rotations[game->current_piece.rotation]
-	                         .blocks;
+	                               .rotations[game->current_piece.rotation]
+	                               .blocks;
 
 	for (int i = 0; i < 4; i++) {
 		struct Pos pos = {(int8_t)(blocks[i].x + game->piece_pos.x),
-			              (int8_t)(blocks[i].y + game->piece_pos.y)};
+		                  (int8_t)(blocks[i].y + game->piece_pos.y)};
 		game->field[pos.y][pos.x] = game->current_piece.piece + 1;
 	}
 }
-
 
 static void moveDown(struct Game *game)
 {
@@ -212,7 +212,7 @@ static void moveDown(struct Game *game)
 	}
 }
 
- void rotate(struct Game *game)
+void rotate(struct Game *game)
 {
 	int count = pieces[game->current_piece.piece].count;
 	int rotation = (game->current_piece.rotation + 1) % count;
@@ -264,6 +264,10 @@ static void updateStatistics(struct Game *game, int lines)
 
 void update(struct Game *game)
 {
+	if (game->rotate) {
+		rotate(game);
+		game->rotate = false;
+	}
 	if (game->interval_count % MOVE_INTERVAL_COUNT == 0) {
 		if (game->key_left) {
 			move(game, DIRECTION_LEFT);
