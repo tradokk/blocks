@@ -21,18 +21,15 @@ set(CMAKE_C_STANDARD 99)
 if(CMAKE_COMPILER_IS_GNUC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 endif()
-	
-set(PLATFORM "SDL2" CACHE STRING "The target platform, 
-	options are: SDL2, PS2")
 
-if(PLATFORM STREQUAL "SDL2")
+if(${PLATFORM_IS_PS2})
+	set(CMAKE_TOOLCHAIN_FILE "${CMAKE_MODULE_PATH}/PS2Toolchain.cmake")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+	include_directories(${CMAKE_SOURCE_DIR}/src/platform/PS2)
+else()
 	find_package(SDL2 REQUIRED)
 	include_directories(${SDL2_INCLUDE_DIR})
 	set(LIBRARIES ${SDL2_LIBRARY})
-
-elseif(PLATFORM STREQUAL "PS2")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-	include_directories(${CMAKE_SOURCE_DIR}/src/platform/PS2)
 endif()
 
 find_package(PythonInterp)
@@ -43,4 +40,3 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/data)
 add_subdirectory(src)
 
 install(DIRECTORY data DESTINATION bin)
-
