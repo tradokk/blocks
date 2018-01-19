@@ -194,7 +194,7 @@ static void drawNumber(struct Pos *pos, int number)
 	} while (remaining > 0);
 }
 
-void draw(struct Game *game)
+void gameDraw(struct Game *game)
 {
 	clear(COLOR2);
 	drawGameGrid(game);

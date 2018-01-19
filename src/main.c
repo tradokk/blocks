@@ -19,9 +19,9 @@
 struct Game game;
 int main()
 {
-	initPlatform();
-	init(&game);
-	loop(&game);
-	exitPlatform();
+	platformInit();
+	gameInit(&game);
+	platformLoop(&game);
+	platformExit();
 	return 0;
 }

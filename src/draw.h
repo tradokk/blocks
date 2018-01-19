@@ -26,6 +26,6 @@
 
 struct Game;
 
-void draw(struct Game *game);
+void gameDraw(struct Game *game);
 
 #endif

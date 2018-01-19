@@ -113,7 +113,7 @@ static void resetPos(struct Game *game)
 	game->piece_pos.y = 1;
 }
 
-void init(struct Game *game)
+void gameInit(struct Game *game)
 {
 	initField(game);
 	game->key_left = false;
@@ -212,7 +212,7 @@ static void moveDown(struct Game *game)
 	}
 }
 
-void rotate(struct Game *game)
+static void rotate(struct Game *game)
 {
 	int count = pieces[game->current_piece.piece].count;
 	int rotation = (game->current_piece.rotation + 1) % count;
@@ -262,7 +262,7 @@ static void updateStatistics(struct Game *game, int lines)
 	game->score += (base * (game->level + 1));
 }
 
-void update(struct Game *game)
+void gameUpdate(struct Game *game)
 {
 	if (game->rotate) {
 		rotate(game);

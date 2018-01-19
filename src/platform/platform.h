@@ -3,10 +3,10 @@
 
 #include <game.h>
 
-void initPlatform();
+void platformInit();
 // void getScreenWidth();
 // void getScreenHeight();
-void loop(struct Game *game);
-void exitPlatform();
+void platformLoop(struct Game *game);
+void platformExit();
 
 #endif

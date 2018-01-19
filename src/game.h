@@ -67,10 +67,8 @@ struct Game {
 	int8_t field[GRID_HEIGHT][GRID_WIDTH];
 };
 
-void init(struct Game *game);
+void gameInit(struct Game *game);
 
-void update(struct Game *game);
-
-void rotate(struct Game *game);
+void gameUpdate(struct Game *game);
 
 #endif

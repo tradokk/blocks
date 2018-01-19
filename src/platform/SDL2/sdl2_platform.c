@@ -18,7 +18,7 @@ struct SDLPlatform {
 	bool is_running;
 } sdl_platform;
 
-void initPlatform()
+void platformInit()
 {
 	sdl_platform.is_running = true;
 	srand(time(NULL));
@@ -106,13 +106,13 @@ static void render()
 	SDL_RenderPresent(sdl_platform.renderer);
 }
 
-void loop(struct Game *game)
+void platformLoop(struct Game *game)
 {
 	unsigned int last_ticks = SDL_GetTicks();
 	while (sdl_platform.is_running) {
 		processInput(game);
-		update(game);
-		draw(game);
+		gameUpdate(game);
+		gameDraw(game);
 		render();
 		unsigned int ticks = SDL_GetTicks();
 		unsigned int elapsed = SDL_min(0, ticks - last_ticks);
@@ -121,7 +121,7 @@ void loop(struct Game *game)
 	}
 }
 
-void exitPlatform()
+void platformExit()
 {
 	SDL_Quit();
 }
