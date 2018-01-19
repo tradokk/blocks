@@ -34,18 +34,16 @@ void RenderGlyph(uint8_t *data, int posx, int posy)
 	for (int y = posy; y < posy + 8; y++) {
 		int x = posx;
 		uint8_t val = data[z];
-		for (int k = 0; k < 8; k++) {
-			if ((x >= 0) && (y >= 0)) {
-				if ((val & 0x80) != 0) {
-					render_buffer[y * SCREEN_WIDTH + x] = TEXT_FG_COLOR;
-
-				} else {
-					render_buffer[y * SCREEN_WIDTH + x] = TEXT_BG_COLOR;
+		if (x >= 0)
+			for (int k = 0; k < 8; k++) {
+				if ((x >= 0) && (y >= 0)) {
+					render_buffer[y * SCREEN_WIDTH + x] =
+					    ((val & 0x80) != 0) ? TEXT_FG_COLOR : TEXT_BG_COLOR;
 				}
+				val <<= 1;
+				x++;
 			}
-			val <<= 1;
-			x++;
-		}
+
 		z++;
 	}
 }
