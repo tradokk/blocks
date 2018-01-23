@@ -12,14 +12,13 @@
  *	You should have received a copy of the GNU General Public License
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DRAW_H
-#define DRAW_H
+#ifndef DRAW_GAME_H
+#define DRAW_GAME_H
 
 #define INTERFACE_WIDTH 8
 #define INTERFACE_HEIGHT (GRID_HEIGHT + 5)
 
 #include <game.h>
-#include <platform/renderer.h>
 #include <resource.h>
 
 struct Game;

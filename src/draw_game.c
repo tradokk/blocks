@@ -13,8 +13,9 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "draw.h"
+#include <draw_game.h>
 #include <game.h>
+#include <platform/renderer.h>
 
 #define I_TL 0 * 16
 #define I_T 1 * 16

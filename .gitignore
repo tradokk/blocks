@@ -9,3 +9,4 @@ CmakeFiles
 CMakeCache.txt
 tags
 compile_commands.json
+.clang

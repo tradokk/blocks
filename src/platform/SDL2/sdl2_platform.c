@@ -1,4 +1,4 @@
-#include <draw.h>
+#include <draw_game.h>
 #include <platform/generic_renderer.h>
 #include <platform/platform.h>
 
