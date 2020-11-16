@@ -191,32 +191,6 @@ EM_BOOL buttonPress(struct Game* game, bool state, int targetX, int targetY)
 	return handled;
 }
 
-/*static inline void scale_horizontal(uint32_t output[CANVAS_WIDTH],
-                                    const uint32_t input[SCREEN_WIDTH])
-
-{
-    int x_dst = 0;
-    for (int x = 0; x < SCREEN_WIDTH; x++) {
-        uint32_t color = input[x];
-        for (int i = 0; i < SCALE_FACTOR; i++) {
-            output[x_dst] = color;
-            x_dst++;
-        }
-    }
-}
-static void scale(uint32_t output[CANVAS_WIDTH * CANVAS_HEIGHT],
-                  const uint32_t input[SCREEN_WIDTH * SCREEN_HEIGHT])
-{
-    int dst = 0;
-    for (int src = 0; src < SCREEN_WIDTH * SCREEN_HEIGHT; src +=
-SCREEN_WIDTH) { for (int i = 0; i < SCALE_FACTOR; i++) {
-            scale_horizontal(&output[dst], &input[src]);
-            dst += CANVAS_WIDTH;
-        }
-    }
-}
-*/
-
 EM_JS(void, render,
       (const uint32_t* ptr, size_t buffer_size, int canvas_width,
        int canvas_height),
