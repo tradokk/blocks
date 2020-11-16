@@ -1,13 +1,13 @@
-#include <draw_game.h>
-#include <platform/generic_renderer.h>
-#include <platform/platform.h>
-
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include "draw_game.h"
+#include "generic_renderer.h"
+#include "platform.h"
 
 #define WINDOW_WIDTH (SCREEN_WIDTH * 4)
 #define WINDOW_HEIGHT (SCREEN_HEIGHT * 4)
@@ -61,7 +61,7 @@ static void processInput(struct Game *game)
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_UP ||
 				    event.key.keysym.sym == SDLK_k) {
-					game->rotate = true;
+					game->rotate_right = true;
 				} else if ((event.key.keysym.sym == SDLK_LEFT) ||
 				           (event.key.keysym.sym == SDLK_h)) {
 					game->key_left = true;
@@ -71,10 +71,12 @@ static void processInput(struct Game *game)
 				} else if ((event.key.keysym.sym == SDLK_DOWN) ||
 				           (event.key.keysym.sym == SDLK_j)) {
 					game->key_down = true;
-				}
-
-				else if (event.key.keysym.sym == SDLK_ESCAPE) {
+				} else if (event.key.keysym.sym == SDLK_ESCAPE) {
 					sdl_platform.is_running = false;
+				} else if (event.key.keysym.sym == SDLK_x) {
+					game->rotate_right = true;
+				} else if (event.key.keysym.sym == SDLK_y) {
+					game->rotate_right = true;
 				}
 				break;
 

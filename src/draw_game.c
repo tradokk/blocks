@@ -13,9 +13,10 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <draw_game.h>
-#include <game.h>
-#include <platform/renderer.h>
+#include "draw_game.h"
+
+#include "game.h"
+#include "renderer.h"
 
 #define I_TL 0 * 16
 #define I_T 1 * 16
@@ -30,132 +31,149 @@
 #define I_B2 4 * 16
 #define I_BR2 5 * 16
 
-extern struct TileSet interface_tiles;
+#define I_TBL 9 * 16
+#define I_TB 10 * 16
+#define I_TBR 11 * 16
 
-extern struct TileSet blocks_tiles;
+extern const struct TileSet interface_tiles;
 
-extern struct TileSet text_tiles;
+extern const struct TileSet blocks_tiles;
 
-extern struct GlyphMap numbers_glyphs;
+extern const struct GlyphMap font_glyphs;
 
-static void drawCurrentPiece(struct Game *game);
+static void drawCurrentPiece(const struct Game *game);
 
-static void drawPiece(int piece, int rotation, struct Pos *pos,
-                      struct Game *game);
+static void drawPiece(int piece, int rotation, int x, int y,
+                      const struct Game *game);
 
-static void drawInterface(struct Game *game);
+static void drawInterface(const struct Game *game);
 
-static void drawGameGrid(struct Game *game);
+static void drawGameGrid(const struct Game *game);
 
-static void drawInterfaceBox(struct Pos *pos, int width, int height,
-                             uint8_t *box);
+static void drawInterfaceBox(int x, int y, int width, int height,
+                             const uint8_t *box);
 
-static void drawText(struct Pos *pos, int line, int length);
+static void drawText(int x, int y, const char *text);
 
-static void drawNumber(struct Pos *pos, int number);
+static void drawNumber(int x, int y, int number);
 
-static uint8_t piece_box[] = {
-    I_TL, I_T,  I_T,   I_T,  I_T,  I_T,  I_TR, I_L,  I_C,   I_C, I_C, I_C,
-    I_C,  I_R,  I_BL2, I_B2, I_B2, I_B2, I_B2, I_B2, I_BR2, I_L, I_C, I_C,
-    I_C,  I_C,  I_C,   I_R,  I_L,  I_C,  I_C,  I_C,  I_C,   I_C, I_R, I_L,
-    I_C,  I_C,  I_C,   I_C,  I_C,  I_R,  I_L,  I_C,  I_C,   I_C, I_C, I_C,
-    I_R,  I_BL, I_B,   I_B,  I_B,  I_B,  I_B,  I_BR};
+static const uint8_t piece_box[] = {
+    I_TL, I_T, I_T, I_T, I_T, I_T, I_T, I_TR,  // 1
+    I_L,  I_C, I_C, I_C, I_C, I_C, I_C, I_R,   // 2
+    I_L,  I_C, I_C, I_C, I_C, I_C, I_C, I_R,   // 3
+    I_L,  I_C, I_C, I_C, I_C, I_C, I_C, I_R,   // 4
+    I_L,  I_C, I_C, I_C, I_C, I_C, I_C, I_R,   // 5
+    I_BL, I_B, I_B, I_B, I_B, I_B, I_B, I_BR   // 6
+};
 
-static uint8_t text_box[] = {I_TL,  I_T,  I_T,  I_T,  I_T,  I_T,  I_T,  I_TR,
-                             I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,
-                             I_BL2, I_B2, I_B2, I_B2, I_B2, I_B2, I_B2, I_BR2,
-                             I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,
-                             I_BL,  I_B,  I_B,  I_B,  I_B,  I_B,  I_B,  I_BR};
-static uint8_t text_box_small[] = {I_TL, I_T, I_T, I_T, I_T, I_T, I_T, I_TR,
-                                   I_L,  I_C, I_C, I_C, I_C, I_C, I_C, I_R,
-                                   I_L,  I_C, I_C, I_C, I_C, I_C, I_C, I_R,
-                                   I_BL, I_B, I_B, I_B, I_B, I_B, I_B, I_BR};
+static uint8_t const text_box[] = {
+    I_TL,  I_T,  I_T,  I_T,  I_T,  I_T,  I_T,  I_TR,   // 1
+    I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,    // 2
+    I_BL2, I_B2, I_B2, I_B2, I_B2, I_B2, I_B2, I_BR2,  // 3
+    I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,    // 4
+    I_BL,  I_B,  I_B,  I_B,  I_B,  I_B,  I_B,  I_BR    // 5
+};
 
-static void drawPiece(int piece, int rotation, struct Pos *pos,
-                      struct Game *game)
+static uint8_t const text_boxes_level_and_lines[] = {
+    I_TL,  I_T,  I_T,  I_T,  I_T,  I_T,  I_T,  I_TR,   // 1
+    I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,    // 2
+    I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,    // 3
+    I_TBL, I_TB, I_TB, I_TB, I_TB, I_TB, I_TB, I_TBR,  // 4
+    I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,    // 5
+    I_L,   I_C,  I_C,  I_C,  I_C,  I_C,  I_C,  I_R,    // 6
+    I_BL,  I_B,  I_B,  I_B,  I_B,  I_B,  I_B,  I_BR    // 7
+};
+
+static void drawPiece(int piece, int rotation, int posx, int posy,
+                      const struct Game *game)
 {
 	const struct Pos *blocks = game->pieces[piece].rotations[rotation].blocks;
 	for (int i = 0; i < 4; i++) {
-		int x = (blocks[i].x + pos->x) * CELL_SIZE;
-		int y = (blocks[i].y + pos->y) * CELL_SIZE;
+		int x = (blocks[i].x + posx) * CELL_SIZE;
+		int y = (blocks[i].y + posy) * CELL_SIZE;
 		renderTile(&blocks_tiles.data[piece * 16], x, y);
 	}
 }
 
-static void drawCurrentPiece(struct Game *game)
+static void drawCurrentPiece(const struct Game *game)
 
 {
+	struct Pos pos = game->piece_pos;
 	drawPiece(game->current_piece.piece, game->current_piece.rotation,
-	          &game->piece_pos, game);
+	          pos.x + LEFT_BORDER_WIDTH, pos.y, game);
 }
 
-static void drawInterface(struct Game *game)
+static void drawInterface(const struct Game *game)
 {
-	struct Pos pos = {GRID_WIDTH, 0};
-	drawInterfaceBox(&pos, 8, 5, text_box);
-	pos.x = GRID_WIDTH + 1;
-	pos.y++;
-	drawText(&pos, 1, 5);
-	pos.x = GRID_WIDTH + 6;
-	pos.y += 2;
-	drawNumber(&pos, game->score);
+	int left = LEFT_BORDER_WIDTH + GRID_WIDTH + RIGHT_BORDER_WIDTH;
+	int x = left;
+	int y = 0;
+	drawInterfaceBox(x, y, 8, 5, text_box);
+	x = left + 1;
+	y++;
+	drawText(x, y, "Score");
+	x = left + 6;
+	y += 2;
+	drawNumber(x, y, game->score);
 
-	pos.x = GRID_WIDTH;
-	pos.y += 2;
-	drawInterfaceBox(&pos, 8, 4, text_box_small);
-	pos.x = GRID_WIDTH + 1;
-	pos.y++;
-	drawText(&pos, 2, 5);
-	pos.x = GRID_WIDTH + 6;
-	pos.y += 1;
-	drawNumber(&pos, game->level);
+	x = left;
+	y += 2;
+	drawInterfaceBox(x, y, 8, 7, text_boxes_level_and_lines);
+	x = left + 1;
+	y++;
+	drawText(x, y, "Level");
+	x = left + 6;
+	y += 1;
+	drawNumber(x, y, game->level);
 
-	pos.x = GRID_WIDTH;
-	pos.y += 2;
-	drawInterfaceBox(&pos, 8, 4, text_box_small);
-	pos.x = GRID_WIDTH + 1;
-	pos.y++;
-	drawText(&pos, 3, 5);
-	pos.x = GRID_WIDTH + 6;
-	pos.y += 1;
-	drawNumber(&pos, game->lines);
+	x = left;
+	y += 1;
+	x = left + 1;
+	y++;
+	drawText(x, y, "Lines");
+	x = left + 6;
+	y += 1;
+	drawNumber(x, y, game->lines);
 
-	pos.x = GRID_WIDTH;
-	pos.y += 2;
-	drawInterfaceBox(&pos, 7, 8, piece_box);
-	pos.x = GRID_WIDTH + 1;
-	pos.y++;
-	drawText(&pos, 0, 5);
+	x = left;
+	y += 2;
+	drawInterfaceBox(x, y, 8, 6, piece_box);
+	x = left + 1;
 
-	pos.x = GRID_WIDTH + 2;
-	pos.y += 4;
-	drawPiece(game->next_piece.piece, game->next_piece.rotation, &pos, game);
-
-	pos.x = GRID_WIDTH;
-	pos.y = 8;
+	x = left + 3;
+	y += 3;
+	drawPiece(game->next_piece.piece, game->next_piece.rotation, x, y, game);
 }
 
-static void drawInterfaceBox(struct Pos *pos, int width, int height,
-                             uint8_t *box)
+static void drawBorder(int left, int top, int right, int bottom)
 {
-	int posx = pos->x * CELL_SIZE;
-	int posy = pos->y * CELL_SIZE;
-	int i = 0;
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			// RenderTile(&interface_tilemap.data[box[i]], posx, posy);
-			renderTile(&interface_tiles.data[box[i]], posx, posy);
-			posx += CELL_SIZE;
-			i++;
+	for (int y = top * CELL_SIZE; y < bottom * CELL_SIZE; y += CELL_SIZE) {
+		for (int x = left * CELL_SIZE; x < right * CELL_SIZE; x += CELL_SIZE) {
+			renderTile(&interface_tiles.data[15 * 16], x, y);
 		}
-		posx = pos->x * CELL_SIZE;
-		posy += CELL_SIZE;
 	}
 }
 
-static void drawGameGrid(struct Game *game)
+static void drawInterfaceBox(int posx, int posy, int width, int height,
+                             const uint8_t *box)
 {
-	int posx = 0;
+	int x = posx * CELL_SIZE;
+	int y = posy * CELL_SIZE;
+	int k = 0;
+	for (int j = 0; j < height; j++) {
+		for (int i = 0; i < width; i++) {
+			renderTile(&interface_tiles.data[box[k]], x, y);
+			x += CELL_SIZE;
+			k++;
+		}
+		x = posx * CELL_SIZE;
+		y += CELL_SIZE;
+	}
+}
+
+static void drawGameGrid(const struct Game *game)
+{
+	int posx = CELL_SIZE * LEFT_BORDER_WIDTH;
 	int posy = 0;
 	for (int y = 0; y < GRID_HEIGHT; y++) {
 		for (int x = 0; x < GRID_WIDTH; x++) {
@@ -166,39 +184,43 @@ static void drawGameGrid(struct Game *game)
 			posx += CELL_SIZE;
 		}
 		posy += CELL_SIZE;
-		posx = 0;
+		posx = CELL_SIZE * LEFT_BORDER_WIDTH;
 	}
 }
 
-static void drawText(struct Pos *pos, int line, int length)
+static void drawText(int posx, int posy, const char *text)
 {
-	int x = pos->x * CELL_SIZE;
-	int y = pos->y * CELL_SIZE;
-	int offset = 5 * GLYPH_HEIGHT * line;
-	for (int i = 0; i < length; i++) {
-		renderGlyph(&text_tiles.data[offset], x, y);
-		offset += 8;
+	int x = posx * CELL_SIZE;
+	int y = posy * CELL_SIZE;
+	while (*text != 0) {
+		int offset = (*text - 0x20) * GLYPH_HEIGHT;
+		renderGlyph(&font_glyphs.data[offset], x, y);
 		x += CELL_SIZE;
+		text++;
 	}
 }
 
-static void drawNumber(struct Pos *pos, int number)
+static void drawNumber(int posx, int posy, int number)
 {
-	int x = pos->x * CELL_SIZE;
-	int y = pos->y * CELL_SIZE;
+	int x = posx * CELL_SIZE;
+	int y = posy * CELL_SIZE;
 
 	int remaining = number;
 	do {
-		int c = remaining % 10;
-		renderGlyph(&numbers_glyphs.data[c * GLYPH_HEIGHT], x, y);
+		int c = (remaining % 10) + 16;
+		renderGlyph(&font_glyphs.data[c * GLYPH_HEIGHT], x, y);
 		remaining = remaining / 10;
 		x -= CELL_SIZE;
 	} while (remaining > 0);
 }
 
-void gameDraw(struct Game *game)
+void gameDraw(const struct Game *game)
 {
 	clear(COLOR2);
+	drawBorder(0, 0, LEFT_BORDER_WIDTH, GRID_HEIGHT);
+	drawBorder(LEFT_BORDER_WIDTH + GRID_WIDTH, 0,
+	           LEFT_BORDER_WIDTH + GRID_WIDTH + RIGHT_BORDER_WIDTH,
+	           GRID_HEIGHT);
 	drawGameGrid(game);
 	drawCurrentPiece(game);
 	drawInterface(game);

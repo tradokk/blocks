@@ -17,18 +17,30 @@
 
 #include <stdint.h>
 
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
+#include "game.h"
 
-#define COLOR0 0xFF204631
-#define COLOR1 0xFFa1bd56
-#define COLOR2 0xFFd6e894
+#define SCREEN_WIDTH 160
+#define SCREEN_HEIGHT 144
+
+#ifdef COLOR_BGRA
+#define COLOR0 0xFF306230  // Dark
+#define COLOR1 0xFF8bac0f  // Light
+#define COLOR2 0xFF9bbc0f  // Very Light
+#define COLOR3 0xFF0f380f  // Very Dark
+#else
+// RGBA
+#define COLOR0 0xFF306230  // Dark
+#define COLOR1 0xFF0fac8b  // Light
+#define COLOR2 0xFF0fbc9b  // Very Light
+#define COLOR3 0xFF0f380f  // Very Dark
+#endif
 
 #define TEXT_FG_COLOR COLOR0
 #define TEXT_BG_COLOR COLOR2
 
 void clear(uint32_t color);
-void renderGlyph(uint8_t *data, int x, int y);
-void renderTile(uint8_t *data, int x, int y);
+void clearArea(uint32_t color, int left, int top, int right, int bottom);
+void renderGlyph(const uint8_t *data, int x, int y);
+void renderTile(const uint8_t *data, int x, int y);
 
 #endif

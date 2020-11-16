@@ -1,0 +1,20 @@
+.container {
+	display:flex;
+	flex-direction:row;
+	justify-content:center;
+}
+
+#canvas {
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	width: min(70vh,95vw);
+	height: auto;
+	border-style: solid;
+	border-width: 5px;
+	border-color: #0f380f;
+}
+
+body {
+	/*background-color:#306230;*/
+	background-color: #f0f0f0;
+}

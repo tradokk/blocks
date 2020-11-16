@@ -16,13 +16,15 @@
 #define DRAW_GAME_H
 
 #define INTERFACE_WIDTH 8
-#define INTERFACE_HEIGHT (GRID_HEIGHT + 5)
+#define INTERFACE_HEIGHT GRID_HEIGHT
+#define LEFT_BORDER_WIDTH 1
+#define RIGHT_BORDER_WIDTH 1
 
-#include <game.h>
-#include <resource.h>
+#include "game.h"
+#include "resource.h"
 
 struct Game;
 
-void gameDraw(struct Game *game);
+void gameDraw(const struct Game *game);
 
 #endif

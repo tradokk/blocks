@@ -13,7 +13,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <game.h>
+#include "game.h"
 
 #include <stdlib.h>
 
@@ -23,10 +23,11 @@ static void resetPos(struct Game *game);
 
 static void generatePiece(struct PieceState *state);
 
-static bool checkCellCollision(int8_t grid[GRID_HEIGHT][GRID_WIDTH],
+static bool checkCellCollision(const int8_t grid[GRID_HEIGHT][GRID_WIDTH],
                                struct Pos pos);
 
-static bool checkCollision(struct Game *game, struct Pos *pos, int rotation);
+static bool checkCollision(const struct Game *game, const struct Pos *pos,
+                           int rotation);
 
 static bool move(struct Game *game, int dir);
 
@@ -120,7 +121,8 @@ void gameInit(struct Game *game)
 	game->key_left = false;
 	game->key_right = false;
 	game->key_down = false;
-	game->rotate = false;
+	game->rotate_right = false;
+	game->rotate_left = false;
 	game->level = 0;
 	game->lines = 0;
 	game->score = 0;
@@ -134,7 +136,7 @@ void gameInit(struct Game *game)
 	resetPos(game);
 }
 
-static bool checkCellCollision(int8_t grid[GRID_HEIGHT][GRID_WIDTH],
+static bool checkCellCollision(const int8_t grid[GRID_HEIGHT][GRID_WIDTH],
                                struct Pos pos)
 {
 	if ((pos.x < 0) || (pos.x >= GRID_WIDTH) || (pos.y >= GRID_HEIGHT)) {
@@ -147,7 +149,8 @@ static bool checkCellCollision(int8_t grid[GRID_HEIGHT][GRID_WIDTH],
 	return true;
 }
 
-static bool checkCollision(struct Game *game, struct Pos *pos, int rotation)
+static bool checkCollision(const struct Game *game, const struct Pos *pos,
+                           int rotation)
 {
 	const struct Pos *blocks =
 	    pieces[game->current_piece.piece].rotations[rotation].blocks;
@@ -213,10 +216,18 @@ static void moveDown(struct Game *game)
 	}
 }
 
-static void rotate(struct Game *game)
+static void rotate_right(struct Game *game)
 {
 	int count = pieces[game->current_piece.piece].count;
 	int rotation = (game->current_piece.rotation + 1) % count;
+	if (!checkCollision(game, &game->piece_pos, rotation)) {
+		game->current_piece.rotation = rotation;
+	}
+}
+static void rotate_left(struct Game *game)
+{
+	int count = pieces[game->current_piece.piece].count;
+	int rotation = (game->current_piece.rotation + 3) % count;
 	if (!checkCollision(game, &game->piece_pos, rotation)) {
 		game->current_piece.rotation = rotation;
 	}
@@ -235,7 +246,7 @@ static void moveGridDown(struct Game *game, int top, int count)
 static void clearLines(struct Game *game)
 {
 	int count = 0;
-	for (int y = GRID_HEIGHT; y >= 0; y--) {
+	for (int y = GRID_HEIGHT - 1; y >= 0; y--) {
 		bool line_full = true;
 		for (int x = 0; x < GRID_WIDTH; x++) {
 			if (game->field[y][x] == 0) {
@@ -265,9 +276,13 @@ static void updateStatistics(struct Game *game, int lines)
 
 void gameUpdate(struct Game *game)
 {
-	if (game->rotate) {
-		rotate(game);
-		game->rotate = false;
+	if (game->rotate_right) {
+		rotate_right(game);
+		game->rotate_right = false;
+	}
+	if (game->rotate_left) {
+		rotate_left(game);
+		game->rotate_left = false;
 	}
 	if (game->interval_count % MOVE_INTERVAL_COUNT == 0) {
 		if (game->key_left) {

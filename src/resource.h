@@ -12,13 +12,13 @@ struct TileSet {
 	uint8_t tile_count;
 	uint8_t bitdepth;
 	uint16_t size;
-	uint8_t *data;
+	const uint8_t *data;
 };
 
 struct GlyphMap {
 	uint8_t glyph_count;
 	uint16_t size;
-	uint8_t *data;
+	const uint8_t *data;
 };
 
 #endif

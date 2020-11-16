@@ -22,7 +22,7 @@
 #define CELL_SIZE 8
 
 #define GRID_WIDTH 10
-#define GRID_HEIGHT 21
+#define GRID_HEIGHT 18
 
 #define GAME_INTERVAL 16
 #define MOVE_INTERVAL_COUNT 8
@@ -54,7 +54,8 @@ struct Game {
 	bool key_left;
 	bool key_right;
 	bool key_down;
-	bool rotate;
+	bool rotate_right;
+	bool rotate_left;
 	int score;
 	int lines;
 	int level;

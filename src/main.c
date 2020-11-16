@@ -13,8 +13,8 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <game.h>
-#include <platform/platform.h>
+#include "game.h"
+#include "platform.h"
 
 struct Game game;
 int main()
