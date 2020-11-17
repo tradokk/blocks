@@ -59,11 +59,18 @@ struct Game {
 	int score;
 	int lines;
 	int level;
+	int top;
+	struct PieceState dirty_piece;
 	struct PieceState current_piece;
 	struct PieceState next_piece;
 	int interval_count;
+	struct Pos dirty_piece_pos;
 	struct Pos piece_pos;
 	int points[4];
+	int dirty_line_start;
+	int dirty_line_end;
+	bool piece_is_dirty;
+	bool field_is_dirty;
 	const struct Piece *pieces;
 	int8_t field[GRID_HEIGHT][GRID_WIDTH];
 };

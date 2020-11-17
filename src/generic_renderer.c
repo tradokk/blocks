@@ -81,17 +81,24 @@ void renderGlyph(const uint8_t *data, int posx, int posy)
 	for (int y = posy; y < posy + 8; y++) {
 		int x = posx;
 		uint8_t val = data[z];
-		if (x >= 0)
-			for (int k = 0; k < 8; k++) {
-				if ((x >= 0) && (y >= 0)) {
-					render_buffer[y * SCREEN_WIDTH + x] =
-					    ((val & 0x80) != 0) ? TEXT_FG_COLOR : TEXT_BG_COLOR;
-				}
-				val <<= 1;
-				x++;
-			}
+		for (int k = 0; k < 8; k++) {
+			render_buffer[y * SCREEN_WIDTH + x] =
+			    ((val & 0x80) != 0) ? TEXT_FG_COLOR : TEXT_BG_COLOR;
+			val <<= 1;
+			x++;
+		}
 
 		z++;
+	}
+}
+
+void clearTile(uint32_t color, int posx, int posy)
+{
+	for (int j = posy * SCREEN_WIDTH; j < (posy + 8) * SCREEN_WIDTH;
+	     j += SCREEN_WIDTH) {
+		for (int i = j + posx; i < j + (posx + 8); i++) {
+			render_buffer[i] = color;
+		}
 	}
 }
 
@@ -109,10 +116,8 @@ void renderTileWithPalette(const uint8_t *data, int posx, int posy,
 		for (int j = 0; j < 2; j++) {
 			uint8_t val = data[z];
 			for (int k = 0; k < 4; k++) {
-				if ((x >= 0) && (y >= 0)) {
-					render_buffer[y * SCREEN_WIDTH + x] =
-					    palette[(val & 0xc0) >> 6];
-				}
+				render_buffer[y * SCREEN_WIDTH + x] =
+				    palette[(val & 0xc0) >> 6];
 				val <<= 2;
 				x++;
 			}

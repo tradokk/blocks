@@ -40,6 +40,7 @@
 
 void clear(uint32_t color);
 void clearArea(uint32_t color, int left, int top, int right, int bottom);
+void clearTile(uint32_t color, int posx, int posy);
 void renderGlyph(const uint8_t *data, int x, int y);
 void renderTile(const uint8_t *data, int x, int y);
 

@@ -136,6 +136,7 @@ EM_BOOL touchEndCallback(int eventType, const EmscriptenTouchEvent* e,
 	game->key_down = false;
 	game->rotate_right = false;
 	game->rotate_left = false;
+	return EM_TRUE;
 }
 EM_BOOL touchStartCallback(int eventType, const EmscriptenTouchEvent* e,
                            void* userData)
@@ -224,8 +225,7 @@ void mainLoopCallback(void* arg)
 {
 	struct Game* game = (struct Game*)arg;
 	gameUpdate(game);
-	gameDraw(game);
-	drawTouchUi();
+	gameDrawChanges(game);
 	render(render_buffer, sizeof(render_buffer), CANVAS_WIDTH, CANVAS_HEIGHT);
 }
 
@@ -246,6 +246,9 @@ void platformLoop(struct Game* game)
 	                               resizeCallback);
 
 	emscripten_set_main_loop_arg(mainLoopCallback, game, 0, 0);
+
+	gameDrawStatic(game);
+	drawTouchUi();
 }
 
 void platformExit() {}

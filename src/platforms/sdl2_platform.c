@@ -112,10 +112,11 @@ static void render()
 void platformLoop(struct Game *game)
 {
 	unsigned int last_ticks = SDL_GetTicks();
+	gameDrawStatic(game);
 	while (sdl_platform.is_running) {
 		processInput(game);
 		gameUpdate(game);
-		gameDraw(game);
+		gameDrawChanges(game);
 		render();
 		unsigned int ticks = SDL_GetTicks();
 		unsigned int elapsed = SDL_min(0, ticks - last_ticks);

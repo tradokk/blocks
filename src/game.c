@@ -113,6 +113,7 @@ static void resetPos(struct Game *game)
 {
 	game->piece_pos.x = GRID_WIDTH / 2;
 	game->piece_pos.y = 1;
+	game->dirty_piece_pos = game->piece_pos;
 }
 
 void gameInit(struct Game *game)
@@ -126,13 +127,19 @@ void gameInit(struct Game *game)
 	game->level = 0;
 	game->lines = 0;
 	game->score = 0;
+	game->top = 0;
 	game->points[0] = 40;
 	game->points[1] = 100;
 	game->points[2] = 300;
 	game->points[3] = 1200;
 	game->pieces = pieces;
+	game->dirty_line_start = 0;
+	game->dirty_line_end = GRID_HEIGHT;
+	game->piece_is_dirty = true;
+	game->field_is_dirty = true;
 	generatePiece(&game->current_piece);
 	generatePiece(&game->next_piece);
+	game->dirty_piece = game->current_piece;
 	resetPos(game);
 }
 
@@ -276,6 +283,8 @@ static void updateStatistics(struct Game *game, int lines)
 
 void gameUpdate(struct Game *game)
 {
+	game->dirty_piece = game->current_piece;
+	game->dirty_piece_pos = game->piece_pos;
 	if (game->rotate_right) {
 		rotate_right(game);
 		game->rotate_right = false;

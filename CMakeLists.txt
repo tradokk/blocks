@@ -16,7 +16,6 @@ if(CMAKE_COMPILER_IS_GNUC)
 endif()
 
 find_package(PythonInterp)
-
 add_subdirectory(src)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data)
 

@@ -46,9 +46,14 @@ static void drawCurrentPiece(const struct Game *game);
 static void drawPiece(int piece, int rotation, int x, int y,
                       const struct Game *game);
 
-static void drawInterface(const struct Game *game);
+static void clearCurrentPiece(const struct Game *game);
 
-static void drawGameGrid(const struct Game *game);
+static void clearPiece(int piece, int rotation, int x, int y,
+                       const struct Game *game);
+
+static void drawStaticInterface(const struct Game *game);
+
+static void drawGameGrid(const struct Game *game, int start, int end);
 
 static void drawInterfaceBox(int x, int y, int width, int height,
                              const uint8_t *box);
@@ -84,6 +89,19 @@ static uint8_t const text_boxes_level_and_lines[] = {
     I_BL,  I_B,  I_B,  I_B,  I_B,  I_B,  I_B,  I_BR    // 7
 };
 
+static void clearPiece(int piece, int rotation, int posx, int posy,
+                       const struct Game *game)
+{
+	const struct Pos *blocks = game->pieces[piece].rotations[rotation].blocks;
+	for (int i = 0; i < 4; i++) {
+		int x = (blocks[i].x + posx) * CELL_SIZE;
+		int y = (blocks[i].y + posy) * CELL_SIZE;
+		if ((x >= 0) && (y >= 0)) {
+			clearTile(COLOR2, x, y);
+		}
+	}
+}
+
 static void drawPiece(int piece, int rotation, int posx, int posy,
                       const struct Game *game)
 {
@@ -91,8 +109,18 @@ static void drawPiece(int piece, int rotation, int posx, int posy,
 	for (int i = 0; i < 4; i++) {
 		int x = (blocks[i].x + posx) * CELL_SIZE;
 		int y = (blocks[i].y + posy) * CELL_SIZE;
-		renderTile(&blocks_tiles.data[piece * 16], x, y);
+		if ((x >= 0) && (y >= 0)) {
+			renderTile(&blocks_tiles.data[piece * 16], x, y);
+		}
 	}
+}
+
+static void clearDirtyPiece(const struct Game *game)
+
+{
+	struct Pos pos = game->dirty_piece_pos;
+	clearPiece(game->dirty_piece.piece, game->dirty_piece.rotation,
+	           pos.x + LEFT_BORDER_WIDTH, pos.y, game);
 }
 
 static void drawCurrentPiece(const struct Game *game)
@@ -103,7 +131,7 @@ static void drawCurrentPiece(const struct Game *game)
 	          pos.x + LEFT_BORDER_WIDTH, pos.y, game);
 }
 
-static void drawInterface(const struct Game *game)
+static void drawStaticInterface(const struct Game *game)
 {
 	int left = LEFT_BORDER_WIDTH + GRID_WIDTH + RIGHT_BORDER_WIDTH;
 	int x = left;
@@ -112,36 +140,34 @@ static void drawInterface(const struct Game *game)
 	x = left + 1;
 	y++;
 	drawText(x, y, "Score");
-	x = left + 6;
-	y += 2;
-	drawNumber(x, y, game->score);
-
 	x = left;
-	y += 2;
+	y += 4;
 	drawInterfaceBox(x, y, 8, 7, text_boxes_level_and_lines);
 	x = left + 1;
 	y++;
 	drawText(x, y, "Level");
-	x = left + 6;
-	y += 1;
-	drawNumber(x, y, game->level);
-
-	x = left;
-	y += 1;
 	x = left + 1;
-	y++;
-	drawText(x, y, "Lines");
-	x = left + 6;
-	y += 1;
-	drawNumber(x, y, game->lines);
-
-	x = left;
-	y += 2;
-	drawInterfaceBox(x, y, 8, 6, piece_box);
-	x = left + 1;
-
-	x = left + 3;
 	y += 3;
+	drawText(x, y, "Lines");
+	x = left;
+	y += 3;
+	drawInterfaceBox(x, y, 8, 6, piece_box);
+}
+
+static void drawInterfaceChanges(const struct Game *game)
+{
+	int left = LEFT_BORDER_WIDTH + GRID_WIDTH + RIGHT_BORDER_WIDTH;
+	int x = left + 6;
+	int y = 3;
+	drawNumber(x, y, game->score);
+	y += 4;
+	drawNumber(x, y, game->level);
+	y += 3;
+	drawNumber(x, y, game->lines);
+	x = left + 3;
+	y += 5;
+	clearPiece(game->current_piece.piece, game->current_piece.rotation, x, y,
+	           game);
 	drawPiece(game->next_piece.piece, game->next_piece.rotation, x, y, game);
 }
 
@@ -171,15 +197,17 @@ static void drawInterfaceBox(int posx, int posy, int width, int height,
 	}
 }
 
-static void drawGameGrid(const struct Game *game)
+static void drawGameGrid(const struct Game *game, int start, int end)
 {
 	int posx = CELL_SIZE * LEFT_BORDER_WIDTH;
-	int posy = 0;
-	for (int y = 0; y < GRID_HEIGHT; y++) {
+	int posy = start * CELL_SIZE;
+	for (int y = start; y < end; y++) {
 		for (int x = 0; x < GRID_WIDTH; x++) {
 			if (game->field[y][x] > 0) {
 				renderTile(&blocks_tiles.data[(game->field[y][x] - 1) * 16],
 				           posx, posy);
+			} else {
+				clearTile(COLOR2, posx, posy);
 			}
 			posx += CELL_SIZE;
 		}
@@ -214,14 +242,20 @@ static void drawNumber(int posx, int posy, int number)
 	} while (remaining > 0);
 }
 
-void gameDraw(const struct Game *game)
+void gameDrawStatic(const struct Game *game)
 {
 	clear(COLOR2);
 	drawBorder(0, 0, LEFT_BORDER_WIDTH, GRID_HEIGHT);
 	drawBorder(LEFT_BORDER_WIDTH + GRID_WIDTH, 0,
 	           LEFT_BORDER_WIDTH + GRID_WIDTH + RIGHT_BORDER_WIDTH,
 	           GRID_HEIGHT);
-	drawGameGrid(game);
+	drawStaticInterface(game);
+}
+
+void gameDrawChanges(const struct Game *game)
+{
+	drawGameGrid(game, game->dirty_line_start, game->dirty_line_end);
+	clearDirtyPiece(game);
 	drawCurrentPiece(game);
-	drawInterface(game);
+	drawInterfaceChanges(game);
 }
