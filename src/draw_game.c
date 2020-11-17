@@ -53,6 +53,8 @@ static void clearPiece(int piece, int rotation, int x, int y,
 
 static void drawStaticInterface(const struct Game *game);
 
+static void drawInterfaceContent(const struct Game *game);
+
 static void drawGameGrid(const struct Game *game, int start, int end);
 
 static void drawInterfaceBox(int x, int y, int width, int height,
@@ -154,7 +156,7 @@ static void drawStaticInterface(const struct Game *game)
 	drawInterfaceBox(x, y, 8, 6, piece_box);
 }
 
-static void drawInterfaceChanges(const struct Game *game)
+static void drawInterfaceContent(const struct Game *game)
 {
 	int left = LEFT_BORDER_WIDTH + GRID_WIDTH + RIGHT_BORDER_WIDTH;
 	int x = left + 6;
@@ -201,7 +203,7 @@ static void drawGameGrid(const struct Game *game, int start, int end)
 {
 	int posx = CELL_SIZE * LEFT_BORDER_WIDTH;
 	int posy = start * CELL_SIZE;
-	for (int y = start; y < end; y++) {
+	for (int y = start; y <= end; y++) {
 		for (int x = 0; x < GRID_WIDTH; x++) {
 			if (game->field[y][x] > 0) {
 				renderTile(&blocks_tiles.data[(game->field[y][x] - 1) * 16],
@@ -250,12 +252,19 @@ void gameDrawStatic(const struct Game *game)
 	           LEFT_BORDER_WIDTH + GRID_WIDTH + RIGHT_BORDER_WIDTH,
 	           GRID_HEIGHT);
 	drawStaticInterface(game);
+	drawInterfaceContent(game);
 }
 
 void gameDrawChanges(const struct Game *game)
 {
-	drawGameGrid(game, game->dirty_line_start, game->dirty_line_end);
-	clearDirtyPiece(game);
-	drawCurrentPiece(game);
-	drawInterfaceChanges(game);
+	if (game->field_is_dirty) {
+		drawGameGrid(game, game->dirty_line_start, game->dirty_line_end);
+	}
+	if (game->piece_is_dirty) {
+		clearDirtyPiece(game);
+		drawCurrentPiece(game);
+	}
+	if (game->interface_is_dirty) {
+		drawInterfaceContent(game);
+	}
 }

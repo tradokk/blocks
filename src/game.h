@@ -71,6 +71,7 @@ struct Game {
 	int dirty_line_end;
 	bool piece_is_dirty;
 	bool field_is_dirty;
+	bool interface_is_dirty;
 	const struct Piece *pieces;
 	int8_t field[GRID_HEIGHT][GRID_WIDTH];
 };
