@@ -36,11 +36,11 @@ static bool move(struct Game *game, int dir);
 
 static void moveDown(struct Game *game);
 
-static void lockPiece(struct Game *game);
+static int lockPiece(struct Game *game);
 
 static void updateStatistics(struct Game *game, int lines);
 
-static void clearLines(struct Game *game);
+static void clearLines(struct Game *game, int bottom_start);
 
 static const struct Piece pieces[7] = {
     // O
@@ -203,29 +203,32 @@ static bool move(struct Game *game, int dir)
 	return true;
 }
 
-static void lockPiece(struct Game *game)
+static int lockPiece(struct Game *game)
 {
 	const struct Pos *blocks = pieces[game->current_piece.piece]
 	                               .rotations[game->current_piece.rotation]
 	                               .blocks;
 
 	int y_min = GRID_HEIGHT;
+	int y_max = 0;
 	for (int i = 0; i < 4; i++) {
 		struct Pos pos = {(int8_t)(blocks[i].x + game->piece_pos.x),
 		                  (int8_t)(blocks[i].y + game->piece_pos.y)};
-		y_min = pos.y < y_min ? pos.y : y_min;
+		y_min = MIN(pos.y, y_min);
+		y_max = MAX(pos.y, y_max);
 		game->field[pos.y][pos.x] = game->current_piece.piece + 1;
 	}
 	if (GRID_HEIGHT - y_min > game->top) {
 		game->top = GRID_HEIGHT - y_min;
 	}
+	return y_max;
 }
 
 static void moveDown(struct Game *game)
 {
 	if (move(game, DIRECTION_DOWN) == false) {
-		lockPiece(game);
-		clearLines(game);
+		int piece_bottom = lockPiece(game);
+		clearLines(game, piece_bottom);
 		game->current_piece = game->next_piece;
 		generatePiece(&game->next_piece);
 		resetPos(game);
@@ -258,15 +261,14 @@ static void moveGridDown(struct Game *game, int start, int count)
 			game->field[y][x] = 0;
 		}
 	}
-	game->top -= count;
 }
 
-static void clearLines(struct Game *game)
+static void clearLines(struct Game *game, int bottom_start)
 {
 	int count = 0;
 	game->dirty_line_start = GRID_HEIGHT;
 	game->dirty_line_end = 0;
-	for (int y = GRID_HEIGHT - 1; y >= 0; y--) {
+	for (int y = bottom_start; y >= GRID_HEIGHT - game->top; y--) {
 		bool line_full = true;
 		for (int x = 0; x < GRID_WIDTH; x++) {
 			if (game->field[y][x] == 0) {
@@ -284,6 +286,7 @@ static void clearLines(struct Game *game)
 				game->dirty_line_end = MAX(y + count, game->dirty_line_end);
 				game->field_is_dirty = true;
 				moveGridDown(game, y, count);
+				game->top -= count;
 				updateStatistics(game, count);
 				count = 0;
 			}
@@ -306,6 +309,7 @@ void gameUpdate(struct Game *game)
 	game->interface_is_dirty = false;
 	game->dirty_piece = game->current_piece;
 	game->dirty_piece_pos = game->piece_pos;
+
 	if (game->rotate_right) {
 		rotate_right(game);
 		game->rotate_right = false;
