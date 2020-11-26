@@ -21,6 +21,7 @@ int main()
 {
 	platformInit();
 	gameInit(&game);
+	gameInitDrawing();
 	platformLoop(&game);
 	platformExit();
 	return 0;

@@ -225,7 +225,7 @@ void mainLoopCallback(void* arg)
 {
 	struct Game* game = (struct Game*)arg;
 	gameUpdate(game);
-	gameDrawChanges(game);
+	gameDraw(game);
 	render(render_buffer, sizeof(render_buffer), CANVAS_WIDTH, CANVAS_HEIGHT);
 }
 
@@ -247,7 +247,6 @@ void platformLoop(struct Game* game)
 
 	emscripten_set_main_loop_arg(mainLoopCallback, game, 0, 0);
 
-	gameDrawStatic(game);
 	drawTouchUi();
 }
 

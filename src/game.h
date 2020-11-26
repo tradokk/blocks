@@ -48,6 +48,12 @@ struct PieceState {
 	int rotation;
 };
 
+enum GameMode {
+	GAMEMODE_TITLESCREEN,
+	GAMEMODE_PLAY,
+	GAMEMODE_GAMEOVERSCREEN,
+};
+
 enum Direction { DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT };
 
 struct Game {
@@ -56,6 +62,7 @@ struct Game {
 	bool key_down;
 	bool rotate_right;
 	bool rotate_left;
+	bool start;
 	int score;
 	int lines;
 	int level;
@@ -74,6 +81,7 @@ struct Game {
 	bool interface_is_dirty;
 	const struct Piece *pieces;
 	int8_t field[GRID_HEIGHT][GRID_WIDTH];
+	int mode;
 };
 
 void gameInit(struct Game *game);

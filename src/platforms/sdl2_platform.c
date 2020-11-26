@@ -77,6 +77,8 @@ static void processInput(struct Game *game)
 					game->rotate_right = true;
 				} else if (event.key.keysym.sym == SDLK_y) {
 					game->rotate_right = true;
+				} else if (event.key.keysym.sym == SDLK_SPACE) {
+					game->start = true;
 				}
 				break;
 
@@ -90,6 +92,8 @@ static void processInput(struct Game *game)
 				} else if ((event.key.keysym.sym == SDLK_DOWN) ||
 				           (event.key.keysym.sym == SDLK_j)) {
 					game->key_down = false;
+				} else if (event.key.keysym.sym == SDLK_SPACE) {
+					game->start = false;
 				}
 				break;
 			default:
@@ -112,11 +116,10 @@ static void render()
 void platformLoop(struct Game *game)
 {
 	unsigned int last_ticks = SDL_GetTicks();
-	gameDrawStatic(game);
 	while (sdl_platform.is_running) {
 		processInput(game);
 		gameUpdate(game);
-		gameDrawChanges(game);
+		gameDraw(game);
 		render();
 		unsigned int ticks = SDL_GetTicks();
 		unsigned int elapsed = SDL_min(0, ticks - last_ticks);

@@ -121,12 +121,18 @@ static void resetPos(struct Game *game)
 
 void gameInit(struct Game *game)
 {
-	initField(game);
 	game->key_left = false;
 	game->key_right = false;
 	game->key_down = false;
 	game->rotate_right = false;
 	game->rotate_left = false;
+	game->start = false;
+	game->mode = GAMEMODE_TITLESCREEN;
+}
+
+static void startNewRound(struct Game *game)
+{
+	initField(game);
 	game->level = 0;
 	game->lines = 0;
 	game->score = 0;
@@ -301,42 +307,56 @@ static void updateStatistics(struct Game *game, int lines)
 	game->score += (base * (game->level + 1));
 	game->interface_is_dirty = true;
 }
-
 void gameUpdate(struct Game *game)
 {
-	game->field_is_dirty = false;
-	game->piece_is_dirty = false;
-	game->interface_is_dirty = false;
-	game->dirty_piece = game->current_piece;
-	game->dirty_piece_pos = game->piece_pos;
+	if (game->mode == GAMEMODE_TITLESCREEN) {
+		if (game->start) {
+			game->mode = GAMEMODE_PLAY;
+			startNewRound(game);
+		}
+	} else if (game->mode == GAMEMODE_PLAY) {
+		game->field_is_dirty = false;
+		game->piece_is_dirty = false;
+		game->interface_is_dirty = false;
+		game->dirty_piece = game->current_piece;
+		game->dirty_piece_pos = game->piece_pos;
 
-	if (game->rotate_right) {
-		rotate_right(game);
-		game->rotate_right = false;
-		game->piece_is_dirty = true;
-	}
-	if (game->rotate_left) {
-		rotate_left(game);
-		game->rotate_left = false;
-		game->piece_is_dirty = true;
-	}
-	if (game->interval_count % MOVE_INTERVAL_COUNT == 0) {
-		if (game->key_left) {
-			move(game, DIRECTION_LEFT);
-			game->piece_is_dirty = true;
-		} else if (game->key_right) {
-			move(game, DIRECTION_RIGHT);
+		if (game->rotate_right) {
+			rotate_right(game);
+			game->rotate_right = false;
 			game->piece_is_dirty = true;
 		}
+		if (game->rotate_left) {
+			rotate_left(game);
+			game->rotate_left = false;
+			game->piece_is_dirty = true;
+		}
+		if (game->interval_count % MOVE_INTERVAL_COUNT == 0) {
+			if (game->key_left) {
+				move(game, DIRECTION_LEFT);
+				game->piece_is_dirty = true;
+			} else if (game->key_right) {
+				move(game, DIRECTION_RIGHT);
+				game->piece_is_dirty = true;
+			}
+		}
+		if ((game->interval_count % SOFT_DROP_INTERVAL_COUNT == 0) &&
+		    game->key_down) {
+			moveDown(game);
+			game->piece_is_dirty = true;
+		} else if (game->interval_count % DROP_INTERVAL_COUNT == 0) {
+			moveDown(game);
+			game->piece_is_dirty = true;
+		}
+		// game->interval_count= (game->interval_count+1)%
+		game->interval_count++;
+		if (game->top >= 18) {
+			game->mode = GAMEMODE_GAMEOVERSCREEN;
+		}
+	} else {
+		if (game->start) {
+			game->mode = GAMEMODE_PLAY;
+			startNewRound(game);
+		}
 	}
-	if ((game->interval_count % SOFT_DROP_INTERVAL_COUNT == 0) &&
-	    game->key_down) {
-		moveDown(game);
-		game->piece_is_dirty = true;
-	} else if (game->interval_count % DROP_INTERVAL_COUNT == 0) {
-		moveDown(game);
-		game->piece_is_dirty = true;
-	}
-	// game->interval_count= (game->interval_count+1)%
-	game->interval_count++;
 }

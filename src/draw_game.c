@@ -35,6 +35,12 @@
 #define I_TB 10 * 16
 #define I_TBR 11 * 16
 
+static struct GameDrawState {
+	bool titlescreen_state;
+	bool play_state;
+	bool gameover_state;
+} draw_state;
+
 extern const struct TileSet interface_tiles;
 
 extern const struct TileSet blocks_tiles;
@@ -244,7 +250,7 @@ static void drawNumber(int posx, int posy, int number)
 	} while (remaining > 0);
 }
 
-void gameDrawStatic(const struct Game *game)
+static void drawStaticUi(const struct Game *game)
 {
 	clear(COLOR2);
 	drawBorder(0, 0, LEFT_BORDER_WIDTH, GRID_HEIGHT);
@@ -255,7 +261,7 @@ void gameDrawStatic(const struct Game *game)
 	drawInterfaceContent(game);
 }
 
-void gameDrawChanges(const struct Game *game)
+static void drawChanges(const struct Game *game)
 {
 	if (game->field_is_dirty) {
 		drawGameGrid(game, game->dirty_line_start, game->dirty_line_end);
@@ -266,5 +272,55 @@ void gameDrawChanges(const struct Game *game)
 	}
 	if (game->interface_is_dirty) {
 		drawInterfaceContent(game);
+	}
+}
+
+static void drawTitleScreen()
+{
+	clear(COLOR2);
+	drawText(3, 7, "Falling Blocks");
+	drawText(2, 9, "Press Start/Space");
+}
+static void drawGamoverScreen()
+{
+	clear(COLOR2);
+	drawText(6, 7, "Game Over");
+	drawText(2, 9, "Press Start/Space");
+}
+
+void gameInitDrawing()
+{
+	draw_state.titlescreen_state = false;
+	draw_state.play_state = false;
+	draw_state.gameover_state = false;
+	drawTitleScreen();
+}
+
+void gameDraw(const struct Game *game)
+{
+	if (game->mode == GAMEMODE_TITLESCREEN) {
+		if (!draw_state.titlescreen_state) {
+			draw_state.titlescreen_state = true;
+			draw_state.play_state = false;
+			draw_state.gameover_state = false;
+			drawTitleScreen();
+		}
+	} else if (game->mode == GAMEMODE_PLAY) {
+		if (!draw_state.play_state) {
+			draw_state.play_state = true;
+			draw_state.titlescreen_state = false;
+			draw_state.gameover_state = false;
+			drawStaticUi(game);
+			drawChanges(game);
+		} else {
+			drawChanges(game);
+		}
+	} else {
+		if (!draw_state.gameover_state) {
+			draw_state.gameover_state = true;
+			draw_state.titlescreen_state = false;
+			draw_state.play_state = false;
+			drawGamoverScreen();
+		}
 	}
 }

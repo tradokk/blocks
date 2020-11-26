@@ -25,7 +25,7 @@
 
 struct Game;
 
-void gameDrawStatic(const struct Game *game);
-void gameDrawChanges(const struct Game *game);
+void gameInitDrawing(const struct Game *game);
+void gameDraw(const struct Game *game);
 
 #endif
