@@ -13,6 +13,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "draw_game.h"
 #include "game.h"
 #include "platform.h"
 
@@ -21,7 +22,7 @@ int main()
 {
 	platformInit();
 	gameInit(&game);
-	gameInitDrawing();
+	gameInitDrawing(&game);
 	platformLoop(&game);
 	platformExit();
 	return 0;
