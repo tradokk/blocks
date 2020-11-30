@@ -1,3 +1,3 @@
-Tetris
+Falling Blocks
 ====================
-A small tetris clone intended for embedded systems.
+A simple game intended for embedded systems and the web.
